@@ -113,6 +113,9 @@ class PIRClientSimple
     void joinAllThreads();
     void no_pipeline(bool b);
 
+    long bytesReadFromServer;
+    long bytesWrittenToServer;
+
     /*Add Observers*/
     boost::signals2::connection addMessageListener(messageListener::slot_function_type subscriber);
     boost::signals2::connection addMenuListener(menuListener::slot_function_type subscriber);

@@ -27,7 +27,9 @@ PIRClientSimple::PIRClientSimple(boost::asio::io_service& ios, ClientParams para
   clientParams(params),
   fixedVars(vars),
   optimum(vars),
-  no_pipeline_mode(false)
+  no_pipeline_mode(false),
+  bytesReadFromServer(0),
+  bytesWrittenToServer(1)
 {
   replyWriter.setdontWrite(params.dontwrite);
       //string lwe_params(crypto_params_const);
@@ -58,7 +60,7 @@ void PIRClientSimple::connect()
     // Tell the server we are a client
     int is_client = 1;
 		write(socket_up, boost::asio::buffer(&is_client, sizeof(int)));
-
+                this->bytesWrittenToServer +=  sizeof(int);
   }
 	catch (const std::exception& ex)
 	{
@@ -76,6 +78,8 @@ void PIRClientSimple::downloadCatalog()
 	try
 	{
 		read(socket_up, boost::asio::buffer(&size, sizeof(size)));
+                this->bytesReadFromServer+=sizeof(size); 
+	
 		std::cout<< "PIRClient: Catalog bytesize is "<<size<<std::endl;
 		char* buf = new char[size + 1]();
 	
@@ -139,9 +143,11 @@ void PIRClientSimple::sendPirParams()
 		write(socket_up, boost::asio::buffer(&pirParams.d, sizeof(int)));
 		write(socket_up, boost::asio::buffer(&pirParams.alpha, sizeof(int)));
 
+                this->bytesWrittenToServer+= 2*sizeof(int);
 		for (unsigned int i = 0 ; i < pirParams.d ; i++)
 		{
 			write(socket_up, boost::asio::buffer(&pirParams.n[i], sizeof(int)));
+                        this->bytesWrittenToServer+= sizeof(int);
 		}
 	}
 	catch (const std::exception& ex)
@@ -156,10 +162,12 @@ void PIRClientSimple::rcvPirParams()
 	{
 		read(socket_up, boost::asio::buffer(&pirParams.d, sizeof(int)));
 		read(socket_up, boost::asio::buffer(&pirParams.alpha, sizeof(int)));
-
+                this->bytesReadFromServer+= 2 * sizeof(int);
 		for (unsigned int i = 0 ; i < pirParams.d ; i++)
 		{
 			read(socket_up, boost::asio::buffer(&pirParams.n[i], sizeof(int)));
+                        this->bytesReadFromServer+= sizeof(int);
+
 		}
 
     std::cout << "PIRClient: Received PIR parameters alpha=" << pirParams.alpha << " d=" << pirParams.d << std::endl; 
@@ -175,6 +183,8 @@ void PIRClientSimple::rcvPIRParamsExchangeMethod()
   try
   {
     read(socket_up, boost::asio::buffer(&exchange_method, sizeof(short)));
+    this->bytesReadFromServer+= sizeof(short);
+ 
     if (exchange_method == CLIENT_DRIVEN) 
     {
       std::cout << "PIRClient: Client-driven mode used" << std::endl;
@@ -228,6 +238,7 @@ void PIRClientSimple::sendCryptoParams(bool paramsandkey)
 
 		  write(socket_up, boost::asio::buffer(&size, sizeof(size)));
       write(socket_up, boost::asio::buffer(crypto_params));
+      this->bytesWrittenToServer+= size +sizeof(size);
     }
 
     size = ceil((double) cryptoMethod->getPublicParameters().getSerializedModulusBitsize() / GlobalConstant::kBitsPerByte);
@@ -235,6 +246,7 @@ void PIRClientSimple::sendCryptoParams(bool paramsandkey)
 
 		key = cryptoMethod->getPublicParameters().getByteModulus();
 		write(socket_up, boost::asio::buffer(key, size));//Send key
+                this->bytesWrittenToServer+= size +sizeof(size);
 		delete[] key;
 	}
 	catch (const std::exception& ex) 
@@ -254,6 +266,9 @@ void PIRClientSimple::rcvCryptoParams() {
     char crypto_params[crypto_params_size + 1];
 
     int read_size = read(socket_up, boost::asio::buffer(crypto_params,crypto_params_size));
+    
+    this->bytesReadFromServer += crypto_params_size  + sizeof(crypto_params_size); 
+
     crypto_params[read_size] = '\0';
 
     pirParams.crypto_params = string(crypto_params);
@@ -338,7 +353,9 @@ void PIRClientSimple::uploadWorker(PIRQueryGenerator& queryGen)
 			{
 				tmp = queryGen.queryBuffer.pop_front();
 				write(socket_up, boost::asio::buffer(tmp, size));
-				free(tmp);
+		                
+                                this->bytesWrittenToServer+= size; 
+                  		free(tmp);
 #ifdef UPLOAD_LIMIT
         sleepForBytes(size);
 #endif
@@ -410,7 +427,9 @@ void PIRClientSimple::downloadWorker(PIRReplyExtraction& turlututu)
 		for (i = 0 ; i < paquet_nbr ; i++)
 		{
 			buf = (char*) malloc(ciph_siz * sizeof(char));
-			read(socket_up,boost::asio::buffer(buf, ciph_siz));
+			int count_read = read(socket_up,boost::asio::buffer(buf, ciph_siz));
+                        this->bytesReadFromServer+= ciph_siz;
+
 			replyExt->repliesBuffer.push(buf);
 		}
 	}
