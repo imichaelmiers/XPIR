@@ -268,6 +268,7 @@ database_t PIRReplyGeneratorNFL::generateReplyGeneric(bool keep_imported_data)
     }
   }
 
+
 	std::cerr << "{\"totalProcessingTIme\": " <<end - start << ",\"DBthroughput\":" << 8*database_size/(end - start) <<"}" <<std::endl; 
 	std::cout<<"PIRReplyGeneratorNFL: Total process time " << end - start << " seconds" << std::endl;
 	std::cout<<"PIRReplyGeneratorNFL: DB processing throughput " << 8*database_size/(end - start) << "bps" << std::endl;
@@ -311,6 +312,7 @@ void PIRReplyGeneratorNFL::generateReplyGenericFromData(const database_t databas
   freeInputData();
 #endif
   double end = omp_get_wtime();
+        std::cerr << "{\"totalProcessingTIme\": " <<end - start << ",\"DBthroughput\":" << 8*database_size/(end - start) <<"}" <<std::endl; 
 	std::cout<<"PIRReplyGeneratorNFL: Total process time " << end - start << " seconds" << std::endl;
 	std::cout<<"PIRReplyGeneratorNFL: DB processing throughput " << 8*dbhandler->getmaxFileBytesize()*dbhandler->getNbStream()/(end - start) << "bps" << std::endl;
 	std::cout<<"PIRReplyGeneratorNFL: Client cleartext reception throughput  " << 8*dbhandler->getmaxFileBytesize()/(end - start) << "bps" << std::endl;
