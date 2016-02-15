@@ -151,7 +151,7 @@ void PIRSession::sendCatalog()
   	} catch (std::exception const& ex) {
     	exitWithErrorMessage(__FUNCTION__,"Error sending catalog: " + string(ex.what()));
   	}
-  	writeWarningMessage(__FUNCTION__ , "done.");
+  	// writeWarningMessage(__FUNCTION__ , "done.");
 }
 
 void PIRSession::sendCryptoParams() 
@@ -461,7 +461,7 @@ void PIRSession::downloadWorker()
   generator->mutex.unlock();
 
   // Output we are done
-  writeWarningMessage(__FUNCTION__, "done.");
+  //writeWarningMessage(__FUNCTION__, "done.");
 }
 
 
@@ -565,7 +565,7 @@ void PIRSession::uploadWorker()
 
 
   // Tell when we have finished
-  writeWarningMessage(__FUNCTION__ , "done.");;
+  //writeWarningMessage(__FUNCTION__ , "done.");;
 }
 
 

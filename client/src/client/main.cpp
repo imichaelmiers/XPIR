@@ -410,6 +410,7 @@ int main(int argc, char** argv)
 
   client.joinAllThreads();
   double end = omp_get_wtime();
+  cerr << "{\"readBytes\":"  <<client.bytesReadFromServer  <<",\"writeBytes\":" << client.bytesWrittenToServer <<"  }"<<endl;
   cout << "MB read from server: " << client.bytesReadFromServer/1000000.0 << endl;
   cout << "MB written to server:" << client.bytesWrittenToServer/1000000.0 << endl;
   cout << "CLI: Query RTT was " << end-start << " seconds" << endl;
