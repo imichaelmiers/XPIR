@@ -27,7 +27,7 @@
 // Fitness method to compute total value
 // SUM: sum all costs
 // MAX: sum the max costs of the client and server pipelines
-enum FitnessType {SUM, MAX, CLOUD};
+enum FitnessType {SUM, MAX, CLOUD,BANDWIDTH};
 
 // Struct with the variables fixed before calling the optimizer
 // These are considered mandatory (alternatives will not be explored)

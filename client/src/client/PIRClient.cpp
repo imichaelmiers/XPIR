@@ -421,6 +421,7 @@ void PIRClientSimple::downloadWorker(PIRReplyExtraction& turlututu)
   cout << "PIRClient: File size of the chosen element is " << catalog.getFileSize(chosenElement) << endl;
 	cout << "PIRClient: Ciphertext bytesize is " << ciph_siz << endl;
 #endif
+	long long total_bytes = 0;
 
 	try
 	{
@@ -429,9 +430,10 @@ void PIRClientSimple::downloadWorker(PIRReplyExtraction& turlututu)
 			buf = (char*) malloc(ciph_siz * sizeof(char));
 			int count_read = read(socket_up,boost::asio::buffer(buf, ciph_siz));
                         this->bytesReadFromServer+= ciph_siz;
-
+			total_bytes += count_read;
 			replyExt->repliesBuffer.push(buf);
 		}
+		cout << "total megabytes read in downloadWoker " << total_bytes/1000000.0 <<endl ; 
 	}
 	catch (const std::exception& ex) 
 	{

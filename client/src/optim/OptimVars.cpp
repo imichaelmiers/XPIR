@@ -98,6 +98,10 @@ double OptimVars::getValue()
       {
         return getGenR() * (kOneHourComputingCost / kSecondsInHour) + (getSendR() * std::min(fixedVars.Tups, fixedVars.Tdoc)) * kOneByteUploadCost;
       }
+    case BANDWIDTH : 
+      {
+        return getSendR()  + getSendQ();
+      }
     default :
       {
         return std::max(getGenQ(), getSendQ()) + std::max(std::max(getGenR(), getSendR()), getDecR());
